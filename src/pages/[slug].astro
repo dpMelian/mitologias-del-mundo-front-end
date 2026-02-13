@@ -1,0 +1,27 @@
+---
+import '@fontsource-variable/fraunces';
+import { getAllPages } from "@/lib/wp";
+
+export async function getStaticPaths() {
+  const data = await getAllPages();
+
+  return data.pages.nodes.map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+---
+<html>
+  <head>
+		<link rel="stylesheet" href="/src/styles/global.css" />
+    <title>{page.seo?.title || page.title}</title>
+    <meta name="description" content={page.seo?.metaDesc} />
+    <link rel="canonical" href={page.seo?.canonical} />
+  </head>
+  <body>
+    <h1 set:html={page.title} />
+    <div set:html={page.content} />
+  </body>
+</html>

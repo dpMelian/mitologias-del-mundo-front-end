@@ -1,0 +1,22 @@
+---
+import { Separator } from './ui/separator';
+import { Button } from './ui/button';
+
+const { blocks } = Astro.props;
+---
+
+{blocks.map(block => {
+  switch (block.name) {
+    case 'core/button':
+      return <Button />;
+    case 'core/separator':
+      return <Separator />
+    case 'core/paragraph':
+    case 'core/list':
+    case 'core/heading':
+    case 'core/image':
+      return <div set:html={block.originalContent} />;
+    default:
+      return null;
+  }
+})}

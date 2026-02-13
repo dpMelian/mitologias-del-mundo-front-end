@@ -1,11 +1,39 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import '@fontsource-variable/fraunces';
+import { GraphQLClient } from 'graphql-request';
+import type { WPPage } from '../types/wp';
+import BlockRenderer from '@/components/BlockRenderer.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const client = new GraphQLClient(`${import.meta.env.WP_DOMAIN}/graphql`);
+
+const data = await client.request<{
+  page: WPPage;
+}>(`
+  {
+    page(id: "/", idType: URI) {
+      id
+      title
+      slug
+      blocks {
+				name
+				originalContent
+			}
+    }
+  }
+`);
+
+const page = data.page;
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html>
+  <head>
+		<link rel="stylesheet" href="/src/styles/global.css" />
+		<meta charset="UTF-8" />
+    <title>{page.seo?.title || page.title}</title>
+    <meta name="description" content={page.seo?.metaDesc} />
+  </head>
+  <body>
+    <h1 set:html={page.title} />
+    <BlockRenderer blocks={page.blocks} />
+  </body>
+</html>
